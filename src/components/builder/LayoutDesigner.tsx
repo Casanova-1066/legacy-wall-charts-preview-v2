@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { BringToFront, Copy, Download, Eye, EyeOff, Grid3X3, Image, Layers3, Lock, Maximize2, Move, Plus, RotateCcw, Save, SendToBack, Trash2, Unlock, Upload } from "lucide-react";
+import { BringToFront, Copy, Download, Eye, EyeOff, Grid3X3, Image, Layers3, Lock, Maximize2, Move, Plus, RotateCcw, Save, ScanSearch, SendToBack, Trash2, Unlock, Upload, ZoomIn, ZoomOut } from "lucide-react";
 import { getCanvasDimensions, PRINT_SIZE_PRESETS, type PrintOrientation } from "@/lib/printSizes";
 import { createGroupTeams, createWorldCup2026Project } from "@/lib/builder/worldCup2026Builder";
 import { saveBuilderDraft } from "@/lib/builder/localDrafts";
@@ -48,7 +48,7 @@ function nextBlock(type: BuilderBlockType, zIndex: number, page: BuilderPage): B
   if (type === "group-stage") {
     return { ...base, width: 30, height: 70, config: { startGroup: "A", groupCount: 4, teamsPerGroup: 4, showFixtures: true, teams: createGroupTeams("A", 4) } };
   }
-  if (type === "knockout") return { ...base, width: 80, height: 70, config: { rounds: ["Quarter-finals", "Semi-finals", "Final"], firstRoundMatches: 4 } };
+  if (type === "knockout") return { ...base, width: 80, height: 70, config: { rounds: ["Quarter-finals", "Semi-finals", "Final"], firstRoundMatches: 4, showExtraTime: true, showPenalties: true, thirdPlace: false } };
   if (type === "title") return { ...base, width: 70, height: 9, x: 15, y: 5, config: { text: "Custom wall chart", subtitle: "Blank printable template" } };
   if (type === "notes") return { ...base, width: 44, height: 12, y: 78, config: { text: "Add notes here" } };
   return base;
@@ -123,21 +123,28 @@ function BlockPreview({ block }: { block: BuilderBlock }) {
     const rounds = (block.config?.rounds as string[] | undefined) ?? ["Quarter-finals", "Semi-finals", "Final"];
     const firstRoundMatches = Number(block.config?.firstRoundMatches ?? 4);
     const thirdPlace = Boolean(block.config?.thirdPlace ?? true);
+    const showExtraTime = Boolean(block.config?.showExtraTime ?? true);
+    const showPenalties = Boolean(block.config?.showPenalties ?? true);
     return (
       <div className="h-full p-2">
-        <div className="mb-2 text-center text-xs font-black uppercase text-gold">Knockout stage</div>
+        <div className="mb-2 text-center text-xs font-black uppercase tracking-[.18em] text-gold">Knockout stage</div>
         <div className="grid h-[calc(100%-1.25rem)] gap-2" style={{ gridTemplateColumns: `repeat(${rounds.length}, minmax(0, 1fr))` }}>
           {rounds.map((round, index) => {
             const matchCount = Math.max(1, Math.ceil(firstRoundMatches / Math.pow(2, index)));
             const isSemiFinal = round.toLowerCase().includes("semi");
+            const isFinal = round.toLowerCase() === "final";
             return (
               <div key={round} className="flex min-h-0 flex-col justify-around gap-1">
-                <p className="text-center text-[8px] font-bold uppercase text-white/80">{round}</p>
+                <p className="text-center text-[8px] font-black uppercase tracking-wide text-white/85">{round}</p>
                 {Array.from({ length: matchCount }).map((_, i) => (
-                  <div key={i} className="rounded border border-white/30 bg-white/95 p-1 text-[7px] text-slate-950">
-                    <div className="grid grid-cols-[1fr_12px] border-b border-slate-300"><span>________________</span><span>_</span></div>
-                    <div className="grid grid-cols-[1fr_12px]"><span>________________</span><span>_</span></div>
-                    <div className="mt-0.5 text-[5px] text-slate-500">Date / venue: __________________</div>
+                  <div key={i} className={`overflow-hidden rounded-md border bg-gradient-to-b from-white to-slate-100 text-[7px] text-slate-950 shadow-md ${isFinal ? "border-amber-400 ring-1 ring-amber-300/60" : "border-white/45"}`}>
+                    <div className="flex items-center justify-between border-b border-slate-300 px-1.5 py-1"><span className="truncate font-semibold">Team {i * 2 + 1}</span><span className="ml-1 flex h-4 w-5 items-center justify-center rounded border border-slate-400 bg-white font-bold">_</span></div>
+                    <div className="flex items-center justify-between px-1.5 py-1"><span className="truncate font-semibold">Team {i * 2 + 2}</span><span className="ml-1 flex h-4 w-5 items-center justify-center rounded border border-slate-400 bg-white font-bold">_</span></div>
+                    {(showExtraTime || showPenalties) && <div className="flex items-center justify-end gap-1 border-t border-slate-300 bg-slate-200/75 px-1 py-0.5 text-[5px] font-bold uppercase text-slate-600">
+                      {showExtraTime && <span className="flex items-center gap-0.5">ET <b className="rounded border border-slate-400 bg-white px-1">_</b><b className="rounded border border-slate-400 bg-white px-1">_</b></span>}
+                      {showPenalties && <span className="flex items-center gap-0.5">Pens <b className="rounded border border-slate-400 bg-white px-1">_</b><b className="rounded border border-slate-400 bg-white px-1">_</b></span>}
+                    </div>}
+                    <div className="px-1.5 py-0.5 text-[5px] text-slate-500">Date / venue: __________________</div>
                   </div>
                 ))}
                 {isSemiFinal && thirdPlace && <div className="rounded border border-amber-500/60 bg-amber-50 p-1 text-[6px] font-semibold text-slate-900">Third-place match →</div>}
@@ -165,6 +172,7 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
   const [zoom, setZoom] = useState(56);
   const [snapToGrid, setSnapToGrid] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
+  const [inspectionMode, setInspectionMode] = useState(false);
   const dragRef = useRef<DragState | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const backgroundInputRef = useRef<HTMLInputElement | null>(null);
@@ -181,6 +189,12 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
   const selectedBlock = project.blocks.find((block) => block.id === selectedId) ?? null;
   const visibleBlocks = project.blocks.filter((block) => (block.page ?? "front") === activePage && !block.hidden);
   const dims = useMemo(() => getCanvasDimensions(project.printSize, project.orientation), [project.printSize, project.orientation]);
+  const effectiveDpi = useMemo(() => {
+    if (!project.backgroundWidthPx || !project.backgroundHeightPx) return null;
+    const widthInches = dims.widthMm / 25.4;
+    const heightInches = dims.heightMm / 25.4;
+    return Math.floor(Math.min(project.backgroundWidthPx / widthInches, project.backgroundHeightPx / heightInches));
+  }, [dims.heightMm, dims.widthMm, project.backgroundHeightPx, project.backgroundWidthPx]);
 
   const patchProject = useCallback((patch: Partial<BuilderProject>) => setProject((current) => ({ ...current, ...patch, updatedAt: new Date().toISOString() })), []);
   const patchBlock = useCallback((blockId: string, patch: Partial<BuilderBlock>) => setProject((current) => ({ ...current, blocks: current.blocks.map((block) => block.id === blockId ? { ...block, ...patch } : block), updatedAt: new Date().toISOString() })), []);
@@ -294,7 +308,20 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => patchProject({ backgroundUrl: String(reader.result ?? "") });
+    reader.onload = () => {
+      const source = String(reader.result ?? "");
+      const image = new window.Image();
+      image.onload = () => patchProject({
+        backgroundUrl: source,
+        backgroundWidthPx: image.naturalWidth,
+        backgroundHeightPx: image.naturalHeight,
+        backgroundFit: project.backgroundFit ?? "cover",
+        backgroundPositionX: project.backgroundPositionX ?? 50,
+        backgroundPositionY: project.backgroundPositionY ?? 50,
+        backgroundScale: project.backgroundScale ?? 100,
+      });
+      image.src = source;
+    };
     reader.readAsDataURL(file);
   };
 
@@ -304,7 +331,7 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
 
   const resetWorldCupLayout = () => {
     const fresh = createWorldCup2026Project(project.name);
-    setProject({ ...fresh, id: project.id, theme: project.theme, printSize: project.printSize, orientation: project.orientation, backgroundUrl: project.backgroundUrl, backgroundOpacity: project.backgroundOpacity });
+    setProject({ ...fresh, id: project.id, theme: project.theme, printSize: project.printSize, orientation: project.orientation, backgroundUrl: project.backgroundUrl, backgroundOpacity: project.backgroundOpacity, backgroundFit: project.backgroundFit, backgroundPositionX: project.backgroundPositionX, backgroundPositionY: project.backgroundPositionY, backgroundScale: project.backgroundScale, backgroundWidthPx: project.backgroundWidthPx, backgroundHeightPx: project.backgroundHeightPx });
     setActivePage("front");
     setSelectedId("front-title");
     toast.success("World Cup 2026 layout restored");
@@ -325,8 +352,8 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-navy text-foreground">
-      <aside className="hidden w-72 shrink-0 overflow-y-auto border-r border-glass-border bg-navy-light/60 p-4 print:hidden lg:block">
+    <div className={cn("flex h-[calc(100vh-4rem)] overflow-hidden bg-navy text-foreground", inspectionMode && "fixed inset-0 z-[100] h-screen")}>
+      <aside className={cn("hidden w-72 shrink-0 overflow-y-auto border-r border-glass-border bg-navy-light/60 p-4 print:hidden lg:block", inspectionMode && "lg:hidden")}>
         <div className="mb-5">
           <p className="text-[10px] uppercase tracking-[.25em] text-gold/70">Template Workshop</p>
           <Input value={project.name} onChange={(e) => patchProject({ name: e.target.value })} className="mt-2 border-gold/15 bg-black/20 font-semibold" />
@@ -378,6 +405,25 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
             <Input value={project.backgroundUrl ?? ""} onChange={(e) => patchProject({ backgroundUrl: e.target.value })} placeholder="Or paste image URL" />
             <Label className="text-[11px]">Background opacity {project.backgroundOpacity}%</Label>
             <Slider value={[project.backgroundOpacity]} min={0} max={100} step={1} onValueChange={([backgroundOpacity]) => patchProject({ backgroundOpacity })} />
+            {project.backgroundUrl && <>
+              <Label className="text-[11px]">Background fit</Label>
+              <Select value={project.backgroundFit ?? "cover"} onValueChange={(backgroundFit) => patchProject({ backgroundFit: backgroundFit as BuilderProject["backgroundFit"] })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="cover">Cover (recommended)</SelectItem><SelectItem value="contain">Contain</SelectItem><SelectItem value="stretch">Stretch</SelectItem><SelectItem value="manual">Manual crop / zoom</SelectItem></SelectContent>
+              </Select>
+              {(project.backgroundFit ?? "cover") === "manual" && <>
+                <Label className="text-[11px]">Background zoom {project.backgroundScale ?? 100}%</Label>
+                <Slider value={[project.backgroundScale ?? 100]} min={50} max={250} step={1} onValueChange={([backgroundScale]) => patchProject({ backgroundScale })} />
+                <Label className="text-[11px]">Horizontal position {project.backgroundPositionX ?? 50}%</Label>
+                <Slider value={[project.backgroundPositionX ?? 50]} min={0} max={100} step={1} onValueChange={([backgroundPositionX]) => patchProject({ backgroundPositionX })} />
+                <Label className="text-[11px]">Vertical position {project.backgroundPositionY ?? 50}%</Label>
+                <Slider value={[project.backgroundPositionY ?? 50]} min={0} max={100} step={1} onValueChange={([backgroundPositionY]) => patchProject({ backgroundPositionY })} />
+              </>}
+              <div className={`rounded-md border p-2 text-[11px] ${effectiveDpi === null ? "border-white/10 text-muted-foreground" : effectiveDpi >= 300 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200" : effectiveDpi >= 200 ? "border-amber-500/30 bg-amber-500/10 text-amber-100" : "border-red-500/30 bg-red-500/10 text-red-200"}`}>
+                <b>Print quality:</b> {project.backgroundWidthPx && project.backgroundHeightPx ? `${project.backgroundWidthPx}×${project.backgroundHeightPx}px` : "Image dimensions unavailable"}<br />
+                {effectiveDpi !== null ? <>Estimated {effectiveDpi} DPI at {dims.label}. {effectiveDpi >= 300 ? "Excellent for print." : effectiveDpi >= 200 ? "Usable, but may soften at large size." : "Warning: likely to look blurred. Use a 300 DPI image or smaller print size."}</> : "Upload an image to calculate effective DPI."}
+              </div>
+            </>}
           </div>
 
           <div className="space-y-3 rounded-lg border border-gold/15 bg-black/20 p-3">
@@ -388,7 +434,9 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
             <Label className="text-xs">Safe margin {project.safeMarginPct ?? 3}%</Label>
             <Slider value={[project.safeMarginPct ?? 3]} min={1} max={10} step={0.5} onValueChange={([safeMarginPct]) => patchProject({ safeMarginPct })} />
             <Label className="text-xs">Zoom {zoom}%</Label>
-            <Slider value={[zoom]} min={25} max={200} step={5} onValueChange={([value]) => setZoom(value)} />
+            <div className="flex items-center gap-2"><Button size="sm" variant="outline" onClick={() => setZoom((value) => clamp(value - 25, 25, 200))}><ZoomOut className="h-3.5 w-3.5" /></Button><Slider value={[zoom]} min={25} max={200} step={5} onValueChange={([value]) => setZoom(value)} /><Button size="sm" variant="outline" onClick={() => setZoom((value) => clamp(value + 25, 25, 200))}><ZoomIn className="h-3.5 w-3.5" /></Button></div>
+            <div className="grid grid-cols-2 gap-2"><Button size="sm" variant="outline" onClick={() => setZoom(56)}>Fit screen</Button><Button size="sm" variant="outline" onClick={() => setZoom(100)}>100%</Button></div>
+            <Button size="sm" className="w-full bg-gold text-navy hover:bg-gold-light" onClick={() => setInspectionMode(true)}><ScanSearch className="mr-2 h-4 w-4" /> Inspect design</Button>
           </div>
 
           <div className="flex gap-2">
@@ -401,7 +449,7 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
       <main className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-center justify-between border-b border-glass-border bg-navy/80 px-4 py-2 print:hidden">
           <div className="text-sm"><b>{dims.label} · {activePage === "front" ? "Front" : "Back"}</b><span className="ml-2 text-muted-foreground">Front holds the knockout bracket. Back holds all 12 groups and fixtures.</span><span className="ml-3 text-xs text-gold/80">{saveState === "saving" ? "Saving…" : saveState === "saved" ? (user ? "Saved to cloud" : "Saved locally") : saveState === "error" ? "Cloud save failed" : project.updatedAt === lastSavedRef.current ? "Saved" : "Unsaved changes"}</span></div>
-          <div className="flex gap-2"><Button size="sm" variant="ghost" onClick={() => void saveDraft()}><Save className="mr-1 h-4 w-4" /> Save draft</Button><Button size="sm" onClick={openPrintPreview} className="bg-gold text-navy hover:bg-gold-light"><Download className="mr-1 h-4 w-4" /> Preview PDF</Button></div>
+          <div className="flex gap-2">{inspectionMode && <Button size="sm" variant="outline" onClick={() => setInspectionMode(false)}>Back to editor</Button>}<Button size="sm" variant="ghost" onClick={() => void saveDraft()}><Save className="mr-1 h-4 w-4" /> Save draft</Button><Button size="sm" onClick={openPrintPreview} className="bg-gold text-navy hover:bg-gold-light"><Download className="mr-1 h-4 w-4" /> Preview PDF</Button></div>
         </div>
 
         <div className="flex flex-1 overflow-auto p-6 print:block print:overflow-visible print:p-0">
@@ -422,7 +470,13 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
               }}
               onPointerDown={() => setSelectedId("")}
             >
-              {project.backgroundUrl && <img src={project.backgroundUrl} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ opacity: project.backgroundOpacity / 100 }} />}
+              {project.backgroundUrl && <img src={project.backgroundUrl} alt="" className="absolute inset-0 h-full w-full" style={{
+                opacity: project.backgroundOpacity / 100,
+                objectFit: project.backgroundFit === "stretch" ? "fill" : project.backgroundFit === "contain" ? "contain" : "cover",
+                objectPosition: `${project.backgroundPositionX ?? 50}% ${project.backgroundPositionY ?? 50}%`,
+                transform: project.backgroundFit === "manual" ? `scale(${(project.backgroundScale ?? 100) / 100})` : undefined,
+                transformOrigin: `${project.backgroundPositionX ?? 50}% ${project.backgroundPositionY ?? 50}%`,
+              }} />}
               <div className={cn("absolute inset-0", project.theme === "light" || project.theme === "retro" ? "bg-white/5" : "bg-gradient-to-b from-black/30 via-transparent to-black/45")} />
               {project.showBleed && <div className="pointer-events-none absolute inset-[1%] border border-dashed border-red-400/80 print:hidden" />}
               {project.showSafeArea && <div className="pointer-events-none absolute border border-dashed border-emerald-300/80 print:hidden" style={{ inset: `${project.safeMarginPct ?? 3}%` }} />}
@@ -444,7 +498,7 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
         </div>
       </main>
 
-      <aside className="hidden w-80 shrink-0 overflow-y-auto border-l border-glass-border bg-navy-light/60 p-4 print:hidden xl:block">
+      <aside className={cn("hidden w-80 shrink-0 overflow-y-auto border-l border-glass-border bg-navy-light/60 p-4 print:hidden xl:block", inspectionMode && "xl:hidden")}>
         <div className="mb-4"><p className="text-[10px] uppercase tracking-[.25em] text-gold/70">Properties</p><h2 className="mt-1 font-display text-xl font-bold">{selectedBlock ? selectedBlock.label : "No block selected"}</h2></div>
         <div className="mb-5 rounded-lg border border-gold/15 bg-black/20 p-3">
           <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-gold"><Layers3 className="h-4 w-4" /> Layers · {activePage}</div>
@@ -482,6 +536,8 @@ export function LayoutDesigner({ initialProject }: { initialProject?: BuilderPro
             <Input value={((selectedBlock.config?.rounds as string[] | undefined) ?? []).join(", ")} onChange={(e) => patchBlock(selectedBlock.id, { config: { ...selectedBlock.config, rounds: e.target.value.split(",").map((value) => value.trim()).filter(Boolean) } })} />
             <Label className="text-xs">First-round matches</Label>
             <Input type="number" min={1} max={64} value={Number(selectedBlock.config?.firstRoundMatches ?? 4)} onChange={(e) => patchBlock(selectedBlock.id, { config: { ...selectedBlock.config, firstRoundMatches: clamp(Number(e.target.value), 1, 64) } })} />
+            <div className="flex items-center justify-between"><Label className="text-xs">Extra-time boxes</Label><Switch checked={Boolean(selectedBlock.config?.showExtraTime ?? true)} onCheckedChange={(showExtraTime) => patchBlock(selectedBlock.id, { config: { ...selectedBlock.config, showExtraTime } })} /></div>
+            <div className="flex items-center justify-between"><Label className="text-xs">Penalty boxes</Label><Switch checked={Boolean(selectedBlock.config?.showPenalties ?? true)} onCheckedChange={(showPenalties) => patchBlock(selectedBlock.id, { config: { ...selectedBlock.config, showPenalties } })} /></div>
             <div className="flex items-center justify-between"><Label className="text-xs">Third-place match</Label><Switch checked={Boolean(selectedBlock.config?.thirdPlace ?? true)} onCheckedChange={(thirdPlace) => patchBlock(selectedBlock.id, { config: { ...selectedBlock.config, thirdPlace } })} /></div>
             <p className="text-[11px] text-muted-foreground">World Cup 2026 uses 16 matches in the Round of 32.</p>
           </div>}

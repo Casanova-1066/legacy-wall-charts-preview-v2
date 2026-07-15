@@ -12,12 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkshopRouteImport } from './routes/workshop'
 import { Route as TournamentsRouteImport } from './routes/tournaments'
 import { Route as ThemesRouteImport } from './routes/themes'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MyLibraryRouteImport } from './routes/my-library'
 import { Route as MyChartsRouteImport } from './routes/my-charts'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HistoricalBuilderRouteImport } from './routes/historical-builder'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as CreateAccountRouteImport } from './routes/create-account'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
@@ -49,9 +53,19 @@ const ThemesRoute = ThemesRouteImport.update({
   path: '/themes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -74,9 +88,19 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoricalBuilderRoute = HistoricalBuilderRouteImport.update({
+  id: '/historical-builder',
+  path: '/historical-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateAccountRoute = CreateAccountRouteImport.update({
+  id: '/create-account',
+  path: '/create-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -161,12 +185,16 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRouteWithChildren
+  '/create-account': typeof CreateAccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/historical-builder': typeof HistoricalBuilderRoute
   '/login': typeof LoginRoute
   '/my-charts': typeof MyChartsRoute
   '/my-library': typeof MyLibraryRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/themes': typeof ThemesRoute
   '/tournaments': typeof TournamentsRouteWithChildren
   '/workshop': typeof WorkshopRoute
@@ -187,12 +215,16 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRouteWithChildren
+  '/create-account': typeof CreateAccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/historical-builder': typeof HistoricalBuilderRoute
   '/login': typeof LoginRoute
   '/my-charts': typeof MyChartsRoute
   '/my-library': typeof MyLibraryRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/themes': typeof ThemesRoute
   '/tournaments': typeof TournamentsRouteWithChildren
   '/workshop': typeof WorkshopRoute
@@ -214,12 +246,16 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRouteWithChildren
+  '/create-account': typeof CreateAccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/historical-builder': typeof HistoricalBuilderRoute
   '/login': typeof LoginRoute
   '/my-charts': typeof MyChartsRoute
   '/my-library': typeof MyLibraryRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/themes': typeof ThemesRoute
   '/tournaments': typeof TournamentsRouteWithChildren
   '/workshop': typeof WorkshopRoute
@@ -242,12 +278,16 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/checkout'
+    | '/create-account'
     | '/forgot-password'
+    | '/historical-builder'
     | '/login'
     | '/my-charts'
     | '/my-library'
     | '/pricing'
+    | '/privacy'
     | '/reset-password'
+    | '/terms'
     | '/themes'
     | '/tournaments'
     | '/workshop'
@@ -268,12 +308,16 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/checkout'
+    | '/create-account'
     | '/forgot-password'
+    | '/historical-builder'
     | '/login'
     | '/my-charts'
     | '/my-library'
     | '/pricing'
+    | '/privacy'
     | '/reset-password'
+    | '/terms'
     | '/themes'
     | '/tournaments'
     | '/workshop'
@@ -294,12 +338,16 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/checkout'
+    | '/create-account'
     | '/forgot-password'
+    | '/historical-builder'
     | '/login'
     | '/my-charts'
     | '/my-library'
     | '/pricing'
+    | '/privacy'
     | '/reset-password'
+    | '/terms'
     | '/themes'
     | '/tournaments'
     | '/workshop'
@@ -321,12 +369,16 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRouteWithChildren
   CheckoutRoute: typeof CheckoutRouteWithChildren
+  CreateAccountRoute: typeof CreateAccountRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HistoricalBuilderRoute: typeof HistoricalBuilderRoute
   LoginRoute: typeof LoginRoute
   MyChartsRoute: typeof MyChartsRoute
   MyLibraryRoute: typeof MyLibraryRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  TermsRoute: typeof TermsRoute
   ThemesRoute: typeof ThemesRoute
   TournamentsRoute: typeof TournamentsRouteWithChildren
   WorkshopRoute: typeof WorkshopRoute
@@ -358,11 +410,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ThemesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -393,11 +459,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/historical-builder': {
+      id: '/historical-builder'
+      path: '/historical-builder'
+      fullPath: '/historical-builder'
+      preLoaderRoute: typeof HistoricalBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forgot-password': {
       id: '/forgot-password'
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create-account': {
+      id: '/create-account'
+      path: '/create-account'
+      fullPath: '/create-account'
+      preLoaderRoute: typeof CreateAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -579,12 +659,16 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AdminRoute: AdminRouteWithChildren,
   CheckoutRoute: CheckoutRouteWithChildren,
+  CreateAccountRoute: CreateAccountRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  HistoricalBuilderRoute: HistoricalBuilderRoute,
   LoginRoute: LoginRoute,
   MyChartsRoute: MyChartsRoute,
   MyLibraryRoute: MyLibraryRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  TermsRoute: TermsRoute,
   ThemesRoute: ThemesRoute,
   TournamentsRoute: TournamentsRouteWithChildren,
   WorkshopRoute: WorkshopRoute,

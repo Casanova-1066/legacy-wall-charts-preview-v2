@@ -38,7 +38,7 @@ export const PRODUCTS: LegacyProduct[] = [
     description: "Monthly creator access for active collectors and designers.",
     includedPdfCredits: 10,
     includedHistoricalCredits: 5,
-    features: ["Unlimited blank templates", "10 clean PDF exports/month", "5 historical chart downloads/month", "Premium backgrounds", "Cloud saves"],
+    features: ["Unlimited blank templates", "10 clean PDF exports/month", "5 historical chart downloads/month", "AI Historical Chart Fill", "Premium backgrounds", "Cloud saves"],
   },
   {
     id: "pro-yearly",
@@ -49,7 +49,7 @@ export const PRODUCTS: LegacyProduct[] = [
     description: "12 months for the price of 10.",
     includedPdfCredits: 120,
     includedHistoricalCredits: 60,
-    features: ["Everything in Pro Monthly", "Two months free", "Annual PDF/historical allowance", "Priority new templates"],
+    features: ["Everything in Pro Monthly", "AI Historical Chart Fill", "Two months free", "Annual PDF/historical allowance", "Priority new templates"],
   },
   {
     id: "lifetime",
@@ -57,7 +57,7 @@ export const PRODUCTS: LegacyProduct[] = [
     name: "Lifetime Unlock",
     priceGbp: 249.99,
     description: "Permanent access to the editor and premium blank templates.",
-    features: ["Lifetime blank-template access", "Premium backgrounds", "Cloud saves", "Clean PDF exports subject to fair use"],
+    features: ["Lifetime blank-template access", "AI Historical Chart Fill", "Premium backgrounds", "Cloud saves", "Clean PDF exports subject to fair use"],
   },
 ];
 

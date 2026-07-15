@@ -38,8 +38,21 @@ function EditorNew() {
     search.template === "world-cup-2026" || search.tournament === "world-cup" ? "World Cup 2026 wall chart" : "Custom blank wall chart",
   );
 
-  if (!search.projectId && search.template && search.template !== "world-cup-2026") {
-    project = { ...project, templateSlug: search.template, name: "Custom blank wall chart", blocks: project.blocks.map((block) => block.id === "title" ? { ...block, label: "Title", config: { text: "Custom wall chart" } } : block) };
+  if (!search.projectId && search.template) {
+    const template = search.template;
+    if (template === "generic-group-knockout") {
+      project = { ...project, templateSlug: template, name: "Custom blank wall chart", blocks: project.blocks.map((block) => block.id === "front-title" ? { ...block, label: "Title", config: { text: "Custom wall chart", subtitle: "Build your own tournament" } } : block) };
+    } else if (template.includes("classic")) {
+      project = { ...project, templateSlug: template, name: "World Cup 2026 · Legacy Classic", theme: "retro", backgroundOpacity: 18 };
+    } else if (template.includes("poster")) {
+      project = { ...project, templateSlug: template, name: "World Cup 2026 · Tournament Poster", theme: "gold", blocks: project.blocks.map((block) => block.id === "knockout" ? { ...block, x: 3, y: 13, width: 94, height: 72 } : block.id === "front-notes" ? { ...block, x: 25, y: 87, width: 50, height: 10, config: { text: "WORLD CHAMPION: ____________________" } } : block) };
+    } else if (template.includes("minimal")) {
+      project = { ...project, templateSlug: template, name: "World Cup 2026 · Minimal Print", theme: "light", backgroundOpacity: 0 };
+    } else if (template.includes("collector")) {
+      project = { ...project, templateSlug: template, name: "World Cup 2026 · Collector's Edition", theme: "gold", blocks: project.blocks.map((block) => block.id === "front-notes" ? { ...block, x: 8, y: 88, width: 84, height: 9, config: { text: "Champion: __________  Golden Boot: __________  Golden Ball: __________  Golden Glove: __________" } } : block) };
+    } else {
+      project = { ...project, templateSlug: template, name: "World Cup 2026 · Legacy Modern", theme: "midnight" };
+    }
   }
 
   return <LayoutDesigner initialProject={project} />;

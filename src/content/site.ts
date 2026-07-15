@@ -16,5 +16,7 @@ export const site = {
     { label: "Pricing", to: "/pricing" },
     { label: "My Charts", to: "/my-charts" },
     { label: "Account", to: "/account" },
+    { label: "Terms", to: "/terms" },
+    { label: "Privacy", to: "/privacy" },
   ],
 } as const;

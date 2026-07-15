@@ -36,7 +36,7 @@ function Login() {
             <h1 className="text-2xl font-bold">Welcome Back</h1>
             <p className="mt-1 text-sm text-muted-foreground">Sign in to save charts, unlock purchases and manage PDF credits.</p>
           </div>
-          <AuthForm defaultMode={search.mode ?? "signin"} onDone={() => navigate({ to: returnTo as any })} />
+          <AuthForm defaultMode={search.mode ?? "signin"} lockMode onDone={() => navigate({ to: returnTo as any })} />
           <div className="mt-4 text-center">
             <Link to="/pricing" className="text-xs text-muted-foreground hover:text-gold">View plans and one-time purchases</Link>
           </div>

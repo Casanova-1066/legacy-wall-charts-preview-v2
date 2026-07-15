@@ -5,7 +5,7 @@ import { signOut } from "@/integrations/neon/auth";
 import { useAssets } from "@/lib/asset";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Menu, X, User, LogOut, Shield, Library } from "lucide-react";
+import { Menu, X, User, LogOut, Shield } from "lucide-react";
 
 export function SiteHeader() {
   const { user, loading } = useAuth();
@@ -77,11 +77,14 @@ export function SiteHeader() {
               </Button>
             </div>
           ) : (
-            <Link to="/login">
-              <Button variant="outline" size="sm" className="border-gold/30 text-gold hover:bg-gold/10">
-                Sign in
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/login">
+                <Button variant="outline" size="sm" className="border-gold/30 text-gold hover:bg-gold/10">Sign in</Button>
+              </Link>
+              <Link to="/create-account">
+                <Button size="sm" className="bg-gold text-navy hover:bg-gold-light">Create account</Button>
+              </Link>
+            </div>
           )}
         </div>
 
@@ -128,9 +131,10 @@ export function SiteHeader() {
                 </button>
               </>
             ) : (
-              <Link to="/login" className="rounded-md px-3 py-2 text-sm text-gold" onClick={() => setMenuOpen(false)}>
-                Sign in
-              </Link>
+              <>
+                <Link to="/login" className="rounded-md px-3 py-2 text-sm text-gold" onClick={() => setMenuOpen(false)}>Sign in</Link>
+                <Link to="/create-account" className="rounded-md bg-gold px-3 py-2 text-sm font-semibold text-navy" onClick={() => setMenuOpen(false)}>Create account</Link>
+              </>
             )}
           </nav>
         </div>

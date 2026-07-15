@@ -24,6 +24,12 @@ export interface BuilderProject {
   orientation: "landscape" | "portrait";
   backgroundUrl?: string;
   backgroundOpacity: number;
+  backgroundFit?: "cover" | "contain" | "stretch" | "manual";
+  backgroundPositionX?: number;
+  backgroundPositionY?: number;
+  backgroundScale?: number;
+  backgroundWidthPx?: number;
+  backgroundHeightPx?: number;
   theme?: "midnight" | "gold" | "light" | "retro";
   showSafeArea?: boolean;
   safeMarginPct?: number;
