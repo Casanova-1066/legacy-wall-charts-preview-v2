@@ -11,14 +11,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/editor/new")({
-  validateSearch: (search: Record<string, unknown>): { tournament?: string; season?: string; template?: string; projectId?: string; name?: string; sport?: string } => {
-    const result: { tournament?: string; season?: string; template?: string; projectId?: string; name?: string; sport?: string } = {};
+  validateSearch: (search: Record<string, unknown>): { tournament?: string; season?: string; template?: string; projectId?: string; name?: string; sport?: string; fill?: string } => {
+    const result: { tournament?: string; season?: string; template?: string; projectId?: string; name?: string; sport?: string; fill?: string } = {};
     if (typeof search.tournament === "string") result.tournament = search.tournament;
     if (typeof search.season === "string") result.season = search.season;
     if (typeof search.template === "string") result.template = search.template;
     if (typeof search.projectId === "string") result.projectId = search.projectId;
     if (typeof search.name === "string") result.name = search.name;
     if (typeof search.sport === "string") result.sport = search.sport;
+    if (typeof search.fill === "string") result.fill = search.fill;
     return result;
   },
   component: EditorNew,
@@ -77,6 +78,7 @@ function EditorNew() {
       competitionSlug: search.tournament,
       competitionName: search.name,
       seasonSlug: search.season,
+      name: `${project.name}${search.fill === "verified" ? " · Verified data" : search.fill === "ai" ? " · AI-assisted draft" : search.fill === "manual" ? " · Manual entry" : ""}`,
     };
   }
 
