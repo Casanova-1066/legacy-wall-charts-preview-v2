@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { LayoutDesigner } from "@/components/builder/LayoutDesigner";
 import { createWorldCup2026Project } from "@/lib/builder/worldCup2026Builder";
@@ -7,6 +7,8 @@ import { loadCloudProject } from "@/lib/builder/cloudProjects";
 import { loadBuilderDrafts } from "@/lib/builder/localDrafts";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/editor/new")({
   validateSearch: (search: Record<string, unknown>): { tournament?: string; season?: string; template?: string; projectId?: string; name?: string; sport?: string } => {
@@ -29,35 +31,32 @@ function EditorNew() {
   const { data: cloudProject, isLoading } = useQuery({
     queryKey: ["builder-project", search.projectId, user?.id],
     queryFn: () => loadCloudProject(search.projectId!),
-    enabled: !!search.projectId && !!user && !localProject,
+    enabled: !!search.projectId && !!user,
     retry: 1,
   });
 
-  if (authLoading || (search.projectId && user && !localProject && isLoading)) {
+  if (authLoading || (search.projectId && user && isLoading)) {
     return <main className="mx-auto max-w-7xl px-6 py-12"><Skeleton className="h-[70vh] rounded-xl" /></main>;
+  }
+
+  const loadedProject = localProject && cloudProject
+    ? (new Date(localProject.updatedAt).getTime() > new Date(cloudProject.updatedAt).getTime() ? localProject : cloudProject)
+    : localProject ?? cloudProject ?? null;
+
+  if (search.projectId && !loadedProject) {
+    return <main className="mx-auto max-w-3xl px-6 py-14"><Card className="glass-panel border-gold/15"><CardContent className="p-8 text-center"><h1 className="text-3xl font-bold">Project could not be loaded</h1><p className="mt-3 text-muted-foreground">The saved chart may have been deleted, or the cloud connection may be temporarily unavailable.</p><div className="mt-6 flex justify-center gap-3"><Link to="/my-charts"><Button>Back to My Charts</Button></Link><Button variant="outline" onClick={() => window.location.reload()}>Try again</Button></div></CardContent></Card></main>;
   }
 
   const templateRequested = search.template ?? "";
   const isWorldCupTemplate = templateRequested.startsWith("world-cup-2026") || search.tournament === "world-cup" || search.tournament === "fifa-world-cup";
-  let project = localProject ?? cloudProject ?? (isWorldCupTemplate
+  let project = loadedProject ?? (isWorldCupTemplate
     ? createWorldCup2026Project("World Cup 2026 wall chart")
     : createTournamentTemplate(templateRequested || "generic-group-knockout", search.name ? `${search.name} wall chart` : "Custom tournament wall chart"));
-
-  if (!search.projectId && search.tournament) {
-    project = {
-      ...project,
-      sportSlug: search.sport,
-      competitionSlug: search.tournament,
-      competitionName: search.name,
-      seasonSlug: search.season,
-    };
-  }
 
   if (!search.projectId && search.template) {
     const template = search.template;
     if (["generic-group-knockout", "generic-group-knockout-v2", "school-knockout-16", "five-a-side-league", "round-robin-board", "fa-cup-proper", "league-cup", "premier-league-table", "laliga-league", "champions-league-classic", "euro-24-team"].includes(template)) {
-      const metadata = { sportSlug: project.sportSlug, competitionSlug: project.competitionSlug, competitionName: project.competitionName, seasonSlug: project.seasonSlug };
-      project = { ...createTournamentTemplate(template, search.name ? `${search.name} wall chart` : undefined), ...metadata };
+      project = createTournamentTemplate(template, search.name ? `${search.name} wall chart` : undefined);
     } else if (template.includes("classic")) {
       project = { ...project, templateSlug: template, name: "World Cup 2026 · Legacy Classic", theme: "retro", backgroundOpacity: 18 };
     } else if (template.includes("poster")) {
@@ -69,6 +68,16 @@ function EditorNew() {
     } else {
       project = { ...project, templateSlug: template, name: "World Cup 2026 · Legacy Modern", theme: "midnight" };
     }
+  }
+
+  if (!search.projectId && search.tournament) {
+    project = {
+      ...project,
+      sportSlug: search.sport,
+      competitionSlug: search.tournament,
+      competitionName: search.name,
+      seasonSlug: search.season,
+    };
   }
 
   return <LayoutDesigner initialProject={project} />;
