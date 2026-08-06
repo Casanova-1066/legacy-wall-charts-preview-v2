@@ -24,6 +24,7 @@ export interface BuilderProject {
   competitionSlug?: string;
   competitionName?: string;
   seasonSlug?: string;
+  syncedAt?: string;
   printSize: string;
   orientation: "landscape" | "portrait";
   backgroundUrl?: string;
