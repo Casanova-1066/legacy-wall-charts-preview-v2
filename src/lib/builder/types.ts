@@ -20,6 +20,10 @@ export interface BuilderProject {
   id: string;
   name: string;
   templateSlug: string;
+  sportSlug?: string;
+  competitionSlug?: string;
+  competitionName?: string;
+  seasonSlug?: string;
   printSize: string;
   orientation: "landscape" | "portrait";
   backgroundUrl?: string;
