@@ -25,6 +25,14 @@ export const Route = createFileRoute("/editor/new")({
   component: EditorNew,
 });
 
+function sportBackground(sport?: string, name?: string, tournament?: string) {
+  const value = `${sport ?? ""} ${name ?? ""} ${tournament ?? ""}`.toLowerCase();
+  if (value.includes("tennis") || value.includes("wimbledon") || value.includes("roland") || value.includes("us-open") || value.includes("australian-open")) return "/backgrounds/tennis-court.svg";
+  if (value.includes("cricket") || value.includes("ashes") || value.includes("ipl") || value.includes("t20")) return "/backgrounds/cricket-ground.svg";
+  if (value.includes("rugby") || value.includes("six-nations") || value.includes("super-league") || value.includes("state-of-origin")) return "/backgrounds/rugby-stadium.svg";
+  return "/backgrounds/football-stadium.svg";
+}
+
 function EditorNew() {
   const search = Route.useSearch();
   const { user, loading: authLoading } = useAuth();
@@ -72,6 +80,8 @@ function EditorNew() {
   }
 
   if (!search.projectId && search.tournament) {
+    const defaultBackground = sportBackground(search.sport, search.name, search.tournament);
+    const minimalTemplate = (search.template ?? "").includes("minimal");
     project = {
       ...project,
       sportSlug: search.sport,
@@ -79,6 +89,9 @@ function EditorNew() {
       competitionName: search.name,
       seasonSlug: search.season,
       name: `${project.name}${search.fill === "verified" ? " · Verified data" : search.fill === "ai" ? " · AI-assisted draft" : search.fill === "manual" ? " · Manual entry" : ""}`,
+      backgroundUrl: minimalTemplate ? "" : (project.backgroundUrl || defaultBackground),
+      backgroundOpacity: minimalTemplate ? 0 : (project.backgroundUrl ? project.backgroundOpacity : 24),
+      backgroundFit: "cover",
     };
   }
 
