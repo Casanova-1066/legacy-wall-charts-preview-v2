@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Edit3, Copy, Trash2, FolderOpen, Cloud, HardDrive, UploadCloud } from "lucide-react";
+import { Plus, Edit3, Copy, Trash2, FolderOpen, Cloud, HardDrive, UploadCloud, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { deleteBuilderDraft, loadBuilderDrafts, saveBuilderDraft } from "@/lib/builder/localDrafts";
 import { deleteCloudProject, duplicateCloudProject, loadCloudProjects, saveCloudProject } from "@/lib/builder/cloudProjects";
@@ -22,6 +22,7 @@ function ProjectCard({ project, cloud, onDuplicate, onDelete }: { project: Build
     <p className="mt-1 text-xs text-muted-foreground">Updated {new Date(project.updatedAt).toLocaleString()}</p>
     <div className="mt-3 flex flex-wrap gap-2">
       <Link to="/editor/new" search={{ projectId: project.id }}><Button variant="outline" size="sm"><Edit3 className="mr-1 h-3 w-3" />Edit</Button></Link>
+      <Link to="/editor/print" search={{ projectId: project.id }}><Button variant="outline" size="sm"><Printer className="mr-1 h-3 w-3" />Print</Button></Link>
       <Button variant="ghost" size="sm" onClick={onDuplicate}><Copy className="mr-1 h-3 w-3" />Duplicate</Button>
       <Button variant="ghost" size="sm" className="text-destructive" onClick={onDelete}><Trash2 className="mr-1 h-3 w-3" />Delete</Button>
     </div>
