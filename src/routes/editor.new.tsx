@@ -9,13 +9,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/editor/new")({
-  validateSearch: (search: Record<string, unknown>): { tournament?: string; season?: string; template?: string; projectId?: string; name?: string } => {
-    const result: { tournament?: string; season?: string; template?: string; projectId?: string; name?: string } = {};
+  validateSearch: (search: Record<string, unknown>): { tournament?: string; season?: string; template?: string; projectId?: string; name?: string; sport?: string } => {
+    const result: { tournament?: string; season?: string; template?: string; projectId?: string; name?: string; sport?: string } = {};
     if (typeof search.tournament === "string") result.tournament = search.tournament;
     if (typeof search.season === "string") result.season = search.season;
     if (typeof search.template === "string") result.template = search.template;
     if (typeof search.projectId === "string") result.projectId = search.projectId;
     if (typeof search.name === "string") result.name = search.name;
+    if (typeof search.sport === "string") result.sport = search.sport;
     return result;
   },
   component: EditorNew,
@@ -42,10 +43,21 @@ function EditorNew() {
     ? createWorldCup2026Project("World Cup 2026 wall chart")
     : createTournamentTemplate(templateRequested || "generic-group-knockout", search.name ? `${search.name} wall chart` : "Custom tournament wall chart"));
 
+  if (!search.projectId && search.tournament) {
+    project = {
+      ...project,
+      sportSlug: search.sport,
+      competitionSlug: search.tournament,
+      competitionName: search.name,
+      seasonSlug: search.season,
+    };
+  }
+
   if (!search.projectId && search.template) {
     const template = search.template;
     if (["generic-group-knockout", "generic-group-knockout-v2", "school-knockout-16", "five-a-side-league", "round-robin-board", "fa-cup-proper", "league-cup", "premier-league-table", "laliga-league", "champions-league-classic", "euro-24-team"].includes(template)) {
-      project = createTournamentTemplate(template, search.name ? `${search.name} wall chart` : undefined);
+      const metadata = { sportSlug: project.sportSlug, competitionSlug: project.competitionSlug, competitionName: project.competitionName, seasonSlug: project.seasonSlug };
+      project = { ...createTournamentTemplate(template, search.name ? `${search.name} wall chart` : undefined), ...metadata };
     } else if (template.includes("classic")) {
       project = { ...project, templateSlug: template, name: "World Cup 2026 · Legacy Classic", theme: "retro", backgroundOpacity: 18 };
     } else if (template.includes("poster")) {
