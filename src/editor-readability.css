@@ -1,0 +1,62 @@
+/* Tournament Studio readability layer. Scoped to the full-height editor shell only. */
+[class*="h-[calc(100vh-4rem)]"] aside {
+  font-size: 0.95rem;
+}
+
+[class*="h-[calc(100vh-4rem)]"] aside label,
+[class*="h-[calc(100vh-4rem)]"] aside [class*="text-xs"],
+[class*="h-[calc(100vh-4rem)]"] aside [class*="text-[11px]"] {
+  font-size: 0.82rem !important;
+  line-height: 1.25rem !important;
+}
+
+[class*="h-[calc(100vh-4rem)]"] aside button {
+  min-height: 2.5rem;
+  font-size: 0.84rem;
+}
+
+[class*="h-[calc(100vh-4rem)]"] aside input,
+[class*="h-[calc(100vh-4rem)]"] aside [role="combobox"] {
+  min-height: 2.6rem;
+  font-size: 0.9rem;
+}
+
+[class*="h-[calc(100vh-4rem)]"] > main > div:first-child {
+  min-height: 3.4rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+[class*="h-[calc(100vh-4rem)]"] > main > div:first-child,
+[class*="h-[calc(100vh-4rem)]"] > main > div:first-child button {
+  font-size: 0.88rem;
+}
+
+@media (min-width: 1024px) {
+  [class*="h-[calc(100vh-4rem)]"] aside:first-child {
+    width: 20rem !important;
+  }
+
+  [class*="h-[calc(100vh-4rem)]"] aside:last-child {
+    width: 21rem !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  [class*="h-[calc(100vh-4rem)]"]::before {
+    content: "For the clearest editing experience, use a desktop or large tablet. Print output is not affected by editor zoom.";
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 120;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(212, 168, 67, 0.35);
+    border-radius: 0.75rem;
+    background: rgba(7, 17, 31, 0.96);
+    color: #f3d98b;
+    font-size: 0.8rem;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+}
