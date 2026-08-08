@@ -7,15 +7,11 @@ import path from "node:path";
 // Static SPA build (NO SSR). `vite build` → dist/ (index.html + assets/*).
 // dist/ is what we upload to GCS (preview) / R2 (publish). No server runs.
 //
-// `base: "./"` — emit RELATIVE asset paths (`./assets/*`) instead of the
-// default absolute `/assets/*`. The in-chat preview serves the built tree
-// from a per-turn Cloud Storage prefix (`…/site/index.html`); with relative
-// paths the assets resolve against that prefix, with absolute paths they'd
-// point at the bucket root and the preview would render blank. The home
-// page renders correctly this way; deep client-side routes only resolve when
-// the site is served from a path root (the publish/R2 path sets its own base).
+// Vercel serves this SPA from the domain root. Absolute asset URLs are
+// required so direct visits to nested routes (and "open in new tab") load
+// `/assets/*` instead of incorrectly resolving `/tournaments/assets/*`.
 export default defineConfig({
-  base: "./",
+  base: "/",
   plugins: [
     tanstackRouter({ target: "react", autoCodeSplitting: true }), // file-based routes → routeTree.gen.ts
     react(),
