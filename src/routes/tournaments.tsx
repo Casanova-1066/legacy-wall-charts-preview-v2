@@ -113,7 +113,12 @@ function Tournaments() {
                   {c.is_active && <Badge variant="outline" className="border-green-500/30 text-green-400 text-xs">Active</Badge>}
                 </div>
                 <div className="mt-6 flex gap-2">
-                  <Link to="/tournaments/$tournamentId" params={{ tournamentId: c.slug }} className="flex-1">
+                  <Link
+                    to="/tournaments/$tournamentId"
+                    params={{ tournamentId: c.slug }}
+                    search={{ release: "history-v3" }}
+                    className="flex-1"
+                  >
                     <Button variant="outline" className="w-full border-gold/30 text-gold hover:bg-gold/10">Open history</Button>
                   </Link>
                   <Link to="/editor/new" search={{ tournament: c.slug }} className="flex-1">
