@@ -11,7 +11,7 @@ async function fulfillCheckout(session: Stripe.Checkout.Session) {
   const userId = String(session.metadata?.user_id || session.client_reference_id || '');
   const product = String(session.metadata?.product_key || '');
   const resourceId = session.metadata?.resource_id || null;
-  if (!userId || !product) return;
+  if (!userId || !product || session.payment_status !== 'paid') return;
   const customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
   if (customerId) await rememberCustomer(userId, customerId);
 
@@ -34,6 +34,12 @@ async function syncSubscription(subscription: Stripe.Subscription) {
     ON CONFLICT (stripe_subscription_id) DO UPDATE SET status = EXCLUDED.status, current_period_end = EXCLUDED.current_period_end, cancel_at_period_end = EXCLUDED.cancel_at_period_end, updated_at = now()`;
 }
 
+async function syncCheckoutSubscription(session: Stripe.Checkout.Session) {
+  const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
+  if (!subscriptionId) return;
+  await syncSubscription(await stripe.subscriptions.retrieve(subscriptionId));
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
@@ -46,19 +52,26 @@ export default async function handler(req: any, res: any) {
     const existing = await sql`SELECT id FROM public.stripe_webhook_events WHERE id = ${event.id} LIMIT 1`;
     if (existing.length) return res.status(200).json({ received: true, duplicate: true });
 
-    if (event.type === 'checkout.session.completed') await fulfillCheckout(event.data.object as Stripe.Checkout.Session);
+    if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.mode === 'subscription') await syncCheckoutSubscription(session);
+      else await fulfillCheckout(session);
+    }
     if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
       await syncSubscription(event.data.object as Stripe.Subscription);
     }
     if (event.type === 'charge.refunded') {
       const charge = event.data.object as Stripe.Charge;
       const paymentIntent = typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id;
-      if (paymentIntent) await sql`UPDATE public.commerce_purchases SET status = 'refunded', updated_at = now() WHERE stripe_payment_intent_id = ${paymentIntent}`;
+      if (paymentIntent && charge.refunded) await sql`UPDATE public.commerce_purchases SET status = 'refunded', updated_at = now() WHERE stripe_payment_intent_id = ${paymentIntent}`;
     }
 
     await sql`INSERT INTO public.stripe_webhook_events (id, event_type) VALUES (${event.id}, ${event.type})`;
     return res.status(200).json({ received: true });
   } catch (error) {
+    if (error instanceof Stripe.errors.StripeSignatureVerificationError) {
+      return res.status(400).json({ error: 'Invalid Stripe signature.' });
+    }
     sendError(res, error);
   }
 }

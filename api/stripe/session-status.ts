@@ -11,10 +11,14 @@ export default async function handler(req: any, res: any) {
       throw Object.assign(new Error('This checkout belongs to another account.'), { statusCode: 403 });
     }
     const purchases = await sql`SELECT product_key, resource_id, status FROM public.commerce_purchases WHERE stripe_checkout_session_id = ${sessionId} LIMIT 1`;
+    const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
+    const subscriptions = subscriptionId ? await sql`SELECT product_key, status FROM public.commerce_subscriptions
+      WHERE stripe_subscription_id = ${subscriptionId} LIMIT 1` : [];
     return res.status(200).json({
       paymentStatus: session.payment_status,
       checkoutStatus: session.status,
-      fulfilled: purchases.length > 0 && purchases[0].status === 'active',
+      fulfilled: (purchases.length > 0 && purchases[0].status === 'active') ||
+        (subscriptions.length > 0 && ['active', 'trialing'].includes(String(subscriptions[0].status))),
       product: session.metadata?.product_key || null,
       resourceId: session.metadata?.resource_id || null,
     });

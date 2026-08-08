@@ -11,19 +11,20 @@ import { useState } from "react";
 export const Route = createFileRoute("/checkout")({ component: Checkout });
 
 function Checkout() {
-  const search = useSearch({ strict: false }) as { product?: string; resourceId?: string };
+  const search = useSearch({ strict: false }) as { product?: string; resourceId?: string; resource?: string };
+  const resourceId = search.resourceId || search.resource;
   const product = productById(search.product);
   const { user, loading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
 
   async function beginCheckout() {
     if (!user) {
-      window.location.href = `/login?returnTo=${encodeURIComponent(`/checkout?product=${product.id}${search.resourceId ? `&resourceId=${search.resourceId}` : ""}`)}`;
+      window.location.href = `/login?returnTo=${encodeURIComponent(`/checkout?product=${product.id}${resourceId ? `&resourceId=${resourceId}` : ""}`)}`;
       return;
     }
     setSubmitting(true);
     try {
-      const { url } = await createCheckoutSession(product.id, search.resourceId);
+      const { url } = await createCheckoutSession(product.id, resourceId);
       window.location.assign(url);
     } catch (error: any) {
       toast.error(error?.message || "Checkout could not be started.");
@@ -64,7 +65,7 @@ function Checkout() {
           <h2 className="text-lg font-semibold mb-4">Order summary</h2>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between"><span>{product.name}</span><span>{formatGbp(product.priceGbp)}</span></div>
-            <div className="flex justify-between text-muted-foreground"><span>VAT/tax</span><span>Calculated by Stripe</span></div>
+            <div className="flex justify-between text-muted-foreground"><span>VAT/tax</span><span>Included where applicable</span></div>
             <hr className="border-glass-border my-3" />
             <div className="flex justify-between text-lg font-bold"><span>Total</span><span className="text-gold">{formatGbp(product.priceGbp)}</span></div>
           </div>

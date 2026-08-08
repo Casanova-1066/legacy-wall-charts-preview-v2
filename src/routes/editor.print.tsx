@@ -37,8 +37,8 @@ function BuilderPrint() {
     loadCommerceEntitlements().then(({ purchases, subscriptions }) => {
       if (!active) return;
       const subscriptionActive = subscriptions.some((subscription) => ["active", "trialing"].includes(subscription.status));
-      const lifetime = purchases.some((purchase) => purchase.product_id === "lifetime" && purchase.status === "active");
-      const templateOwned = purchases.some((purchase) => purchase.product_id === "blank-template" && purchase.status === "active" && (!purchase.resource_id || purchase.resource_id === project.templateSlug));
+      const lifetime = purchases.some((purchase) => purchase.product_key === "lifetime" && purchase.status === "active");
+      const templateOwned = purchases.some((purchase) => purchase.product_key === "blank-template" && purchase.status === "active" && (!purchase.resource_id || purchase.resource_id === project.templateSlug));
       setEntitled(subscriptionActive || lifetime || templateOwned);
     }).catch(() => setEntitled(false));
     return () => { active = false; };
