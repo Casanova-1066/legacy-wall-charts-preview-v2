@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Calendar, Trophy, FolderOpen, AlertCircle, Search, Wand2, PencilLine, BadgeCheck, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { getCatalogCompetition, getCatalogSeasons, normalizeTournamentSlug } from "@/lib/catalog";
+import { archiveSeasonSummary, CHAMPIONS_LEAGUE_SLUG, fetchChampionsLeagueArchive } from "@/lib/championsLeagueArchive";
 
 export const Route = createFileRoute("/tournaments/$tournamentId")({ component: TournamentDetail });
 
@@ -31,6 +32,15 @@ function TournamentDetail() {
   const canonicalTournamentId = normalizeTournamentSlug(tournamentId);
   const builtInCompetition = getCatalogCompetition(canonicalTournamentId);
   const catalogSeasons = getCatalogSeasons(canonicalTournamentId);
+  const { data: archiveSeasons, isLoading: archiveLoading, error: archiveError } = useQuery({
+    queryKey: ["champions-league-archive-seasons"],
+    queryFn: async () => {
+      const archive = await fetchChampionsLeagueArchive();
+      return [...archive.seasons].reverse().map(archiveSeasonSummary);
+    },
+    enabled: canonicalTournamentId === CHAMPIONS_LEAGUE_SLUG,
+    staleTime: Infinity,
+  });
   const { data: profileCompetition } = useQuery({
     queryKey: ["competition-profile", canonicalTournamentId],
     queryFn: async () => {
@@ -75,9 +85,10 @@ function TournamentDetail() {
   const seasons = useMemo(() => {
     const bySlug = new Map<string, any>();
     catalogSeasons.forEach((season) => bySlug.set(season.slug, season));
+    (archiveSeasons ?? []).forEach((season) => bySlug.set(season.slug, { ...bySlug.get(season.slug), ...season }));
     (dbSeasons ?? []).forEach((season: any) => bySlug.set(season.slug, { ...bySlug.get(season.slug), ...season }));
     return Array.from(bySlug.values()).sort((a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999));
-  }, [catalogSeasons, dbSeasons]);
+  }, [catalogSeasons, archiveSeasons, dbSeasons]);
 
   const filteredSeasons = useMemo(() => {
     const q = query.trim().toLowerCase();
