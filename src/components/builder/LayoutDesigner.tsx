@@ -27,6 +27,7 @@ const blockTypeLabels: Record<BuilderBlockType, string> = {
   title: "Title",
   "group-stage": "Group stage",
   knockout: "Knockout",
+  "match-card": "Match card",
   notes: "Notes",
   image: "Image",
   text: "Text",

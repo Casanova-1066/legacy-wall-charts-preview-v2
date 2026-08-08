@@ -22,6 +22,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as HistoricalBuilderRouteImport } from './routes/historical-builder'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as CreateAccountRouteImport } from './routes/create-account'
+import { Route as CompetitionWizardRouteImport } from './routes/competition-wizard'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
@@ -33,6 +34,7 @@ import { Route as EditorChartIdRouteImport } from './routes/editor.$chartId'
 import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
 import { Route as CheckoutCancelledRouteImport } from './routes/checkout.cancelled'
 import { Route as AdminSecurityLogsRouteImport } from './routes/admin.security-logs'
+import { Route as AdminHistoricalImportRouteImport } from './routes/admin.historical-import'
 import { Route as AdminAiLogsRouteImport } from './routes/admin.ai-logs'
 import { Route as TournamentsTournamentIdSeasonIdRouteImport } from './routes/tournaments.$tournamentId.$seasonId'
 import { Route as EditorChartIdPrintRouteImport } from './routes/editor.$chartId.print'
@@ -103,6 +105,11 @@ const CreateAccountRoute = CreateAccountRouteImport.update({
   path: '/create-account',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompetitionWizardRoute = CompetitionWizardRouteImport.update({
+  id: '/competition-wizard',
+  path: '/competition-wizard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -158,6 +165,11 @@ const AdminSecurityLogsRoute = AdminSecurityLogsRouteImport.update({
   path: '/security-logs',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminHistoricalImportRoute = AdminHistoricalImportRouteImport.update({
+  id: '/historical-import',
+  path: '/historical-import',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAiLogsRoute = AdminAiLogsRouteImport.update({
   id: '/ai-logs',
   path: '/ai-logs',
@@ -185,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRouteWithChildren
+  '/competition-wizard': typeof CompetitionWizardRoute
   '/create-account': typeof CreateAccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/historical-builder': typeof HistoricalBuilderRoute
@@ -199,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/tournaments': typeof TournamentsRouteWithChildren
   '/workshop': typeof WorkshopRoute
   '/admin/ai-logs': typeof AdminAiLogsRoute
+  '/admin/historical-import': typeof AdminHistoricalImportRoute
   '/admin/security-logs': typeof AdminSecurityLogsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/success': typeof CheckoutSuccessRoute
@@ -215,6 +229,7 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRouteWithChildren
+  '/competition-wizard': typeof CompetitionWizardRoute
   '/create-account': typeof CreateAccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/historical-builder': typeof HistoricalBuilderRoute
@@ -229,6 +244,7 @@ export interface FileRoutesByTo {
   '/tournaments': typeof TournamentsRouteWithChildren
   '/workshop': typeof WorkshopRoute
   '/admin/ai-logs': typeof AdminAiLogsRoute
+  '/admin/historical-import': typeof AdminHistoricalImportRoute
   '/admin/security-logs': typeof AdminSecurityLogsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/success': typeof CheckoutSuccessRoute
@@ -246,6 +262,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRouteWithChildren
+  '/competition-wizard': typeof CompetitionWizardRoute
   '/create-account': typeof CreateAccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/historical-builder': typeof HistoricalBuilderRoute
@@ -260,6 +277,7 @@ export interface FileRoutesById {
   '/tournaments': typeof TournamentsRouteWithChildren
   '/workshop': typeof WorkshopRoute
   '/admin/ai-logs': typeof AdminAiLogsRoute
+  '/admin/historical-import': typeof AdminHistoricalImportRoute
   '/admin/security-logs': typeof AdminSecurityLogsRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
   '/checkout/success': typeof CheckoutSuccessRoute
@@ -278,6 +296,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/checkout'
+    | '/competition-wizard'
     | '/create-account'
     | '/forgot-password'
     | '/historical-builder'
@@ -292,6 +311,7 @@ export interface FileRouteTypes {
     | '/tournaments'
     | '/workshop'
     | '/admin/ai-logs'
+    | '/admin/historical-import'
     | '/admin/security-logs'
     | '/checkout/cancelled'
     | '/checkout/success'
@@ -308,6 +328,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/checkout'
+    | '/competition-wizard'
     | '/create-account'
     | '/forgot-password'
     | '/historical-builder'
@@ -322,6 +343,7 @@ export interface FileRouteTypes {
     | '/tournaments'
     | '/workshop'
     | '/admin/ai-logs'
+    | '/admin/historical-import'
     | '/admin/security-logs'
     | '/checkout/cancelled'
     | '/checkout/success'
@@ -338,6 +360,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/checkout'
+    | '/competition-wizard'
     | '/create-account'
     | '/forgot-password'
     | '/historical-builder'
@@ -352,6 +375,7 @@ export interface FileRouteTypes {
     | '/tournaments'
     | '/workshop'
     | '/admin/ai-logs'
+    | '/admin/historical-import'
     | '/admin/security-logs'
     | '/checkout/cancelled'
     | '/checkout/success'
@@ -369,6 +393,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRouteWithChildren
   CheckoutRoute: typeof CheckoutRouteWithChildren
+  CompetitionWizardRoute: typeof CompetitionWizardRoute
   CreateAccountRoute: typeof CreateAccountRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HistoricalBuilderRoute: typeof HistoricalBuilderRoute
@@ -480,6 +505,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/competition-wizard': {
+      id: '/competition-wizard'
+      path: '/competition-wizard'
+      fullPath: '/competition-wizard'
+      preLoaderRoute: typeof CompetitionWizardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout': {
       id: '/checkout'
       path: '/checkout'
@@ -557,6 +589,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSecurityLogsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/historical-import': {
+      id: '/admin/historical-import'
+      path: '/historical-import'
+      fullPath: '/admin/historical-import'
+      preLoaderRoute: typeof AdminHistoricalImportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/ai-logs': {
       id: '/admin/ai-logs'
       path: '/ai-logs'
@@ -590,11 +629,13 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAiLogsRoute: typeof AdminAiLogsRoute
+  AdminHistoricalImportRoute: typeof AdminHistoricalImportRoute
   AdminSecurityLogsRoute: typeof AdminSecurityLogsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAiLogsRoute: AdminAiLogsRoute,
+  AdminHistoricalImportRoute: AdminHistoricalImportRoute,
   AdminSecurityLogsRoute: AdminSecurityLogsRoute,
 }
 
@@ -659,6 +700,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AdminRoute: AdminRouteWithChildren,
   CheckoutRoute: CheckoutRouteWithChildren,
+  CompetitionWizardRoute: CompetitionWizardRoute,
   CreateAccountRoute: CreateAccountRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HistoricalBuilderRoute: HistoricalBuilderRoute,

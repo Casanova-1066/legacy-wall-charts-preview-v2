@@ -1,4 +1,4 @@
-export type BuilderBlockType = "title" | "group-stage" | "knockout" | "notes" | "image" | "text" | "league-table" | "fixtures";
+export type BuilderBlockType = "title" | "group-stage" | "knockout" | "match-card" | "notes" | "image" | "text" | "league-table" | "fixtures";
 export type BuilderPage = "front" | "back";
 
 export interface BuilderBlock {
